@@ -115,18 +115,29 @@ def ActRobot(robot):
         if 'defc' in initial:
                 if type(res)==tuple:
                         if res[1]["release_virus"]>0:
-                                if robot.GetVirus()>1200:
-                                        robot.DeployVirus(1000)
+                                if 'innerdefc' in initial:
+                                        if robot.GetVirus()>4000:
+                                                robot.DeployVirus(4000)
+                                        else:
+                                                robot.DeployVirus(robot.GetVirus()*0.9)
                                 else:
-                                        robot.DeployVirus(robot.GetVirus()*0.9)
+                                        if robot.GetVirus()>1200:
+                                                robot.DeployVirus(1200)
+                                        elif robot.GetVirus()>600:
+                                                robot.DeployVirus(600)
         
 
         if 'defc' in initial:
                 basecrd=[int(initial.split()[2]), int(initial.split()[3])]
                 xb=basecrd[0]
                 yb=basecrd[1]
+        
         if ('defc' in initial) and (robocrd==basecrd) :
-            return (int(initial.split()[1])%4)
+                re=int(initial.split()[1])
+                if re%4!=0:
+                        return (re%4)
+                elif re%4==0:
+                        return 4
         elif 'innerdefc' in initial:
             if xr<xb and yr>=yb:
                 return 1
@@ -235,11 +246,11 @@ def ActRobot(robot):
                 if grid%2==1:
                         if (xr<=xc/2 and yr>yc*(grid-1)/10 and yr<= yc*(grid+1)/10 )==False:
                                 if xr>xc/2:
-                                        return 4
+                                        return choice([4,4,4,4,4,4,1,3,1,3])
                                 if yr<=yc*(grid-1)/10:
-                                        return 3
+                                        return choice([3,3,3,3,3,3,4,2,2,4])
                                 if yr>yc*(grid+1)/10:
-                                        return 1
+                                        return choice([1,1,1,1,1,1,4,2,2,4])
                         elif (xr==xc/2):
                                 return 4
                         elif (xr==1):
@@ -253,11 +264,11 @@ def ActRobot(robot):
                 elif grid%2==0:
                         if (xr>xc/2 and yr>yc*(grid-2)/10 and yr<= yc*(grid)/10 )==False:
                                 if xr<=xc/2:
-                                        return choice([2,2,2,2,2,2,2,2,1,3])
+                                        return choice([2,2,2,2,2,2,3,1,1,3])
                                 if yr<=yc*(grid-2)/10:
-                                        return choice([3,3,3,3,3,3,3,3,2,4])
+                                        return choice([3,3,3,3,3,3,4,2,2,4])
                                 if yr>yc*(grid)/10:
-                                        return choice([1,1,1,1,1,1,1,1,2,4])
+                                        return choice([1,1,1,1,1,1,4,2,2,4])
                         elif (xr==xc):
                                 return 4
                         elif (xr==1+xc/2):
@@ -324,7 +335,7 @@ def ActBase(base):
         
         '''
         basedefence(base)
-        reserveElixir = 100
+        reserveElixir = 350
         signals = []
         # check if robots have signalled anything
         try:
