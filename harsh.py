@@ -215,11 +215,15 @@ def ActRobot(robot):
                 virus_amt = 4000
                 while(robot.GetVirus() > virus_amt):
                         robot.DeployVirus(virus_amt)
+                if robot.GetVirus()>2000:
+                        robot.DeployVirus(2000)
+                else:
+                        robot.DeployVirus(robot.GetVirus()*0.8)
                 return 0
         else:
                 if res[1]["release_virus"]:
                         if robot.GetVirus() > 1000:
-                                robot.DeployVirus(400)  
+                                robot.DeployVirus(600)  
 
         if 'attack' in initial:
                 grid=int(initial.split()[1])
