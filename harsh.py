@@ -178,10 +178,10 @@ def ActRobot(robot):
                         return 2
                 
         
-                
+        pos=int(initial.split()[2])   
         #attacking robots code
         en = robot.GetCurrentBaseSignal()
-        if en.startswith("E:") :
+        if en.startswith("E:") and pos==1:
                 # Guide other robots to enemy base by using some algorithm
                 e = en.split(":")[1].split(",")
                 xe=int(e[0])
