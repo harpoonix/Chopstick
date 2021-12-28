@@ -177,11 +177,11 @@ def ActRobot(robot):
                 elif yr-yb==2 and xb-xr<=2 and xb-xr>=-1 :
                         return 2
                 
-        
-        pos=int(initial.split()[2])   
+        grid=int(initial.split()[1])
+           
         #attacking robots code
         en = robot.GetCurrentBaseSignal()
-        if en.startswith("E:") and pos==1:
+        if en.startswith("E:") and grid%2==0:
                 # Guide other robots to enemy base by using some algorithm
                 e = en.split(":")[1].split(",")
                 xe=int(e[0])
@@ -238,44 +238,82 @@ def ActRobot(robot):
 
         if 'attack' in initial:
                 grid=int(initial.split()[1])
-                pos=int(initial.split()[2])
-                xc=int(initial.split()[3])
-                yc=int(initial.split()[4])
+                xc=int(initial.split()[2])
+                yc=int(initial.split()[3])
 
-                #make 10 grids of 8x20 each
-                if grid%2==1:
-                        if (xr<=xc/2 and yr>yc*(grid-1)/10 and yr<= yc*(grid+1)/10 )==False:
-                                if xr>xc/2:
+                #make 20 grids of 8x10 each
+                if grid%4==1:
+                        if (xr<=xc/4 and yr>yc*(grid-1)/20 and yr<= yc*(grid+3)/20 )==False:
+                                if xr>xc/4:
                                         return choice([4,4,4,4,4,4,1,3,1,3])
-                                if yr<=yc*(grid-1)/10:
+                                if yr<=yc*(grid-1)/20:
                                         return choice([3,3,3,3,3,3,4,2,2,4])
-                                if yr>yc*(grid+1)/10:
+                                if yr>yc*(grid+3)/20:
                                         return choice([1,1,1,1,1,1,4,2,2,4])
-                        elif (xr==xc/2):
+                        elif (xr==xc/4):
                                 return 4
                         elif (xr==1):
                                 return 2
-                        elif (yr==yc*(grid-1)/10+1):
+                        elif (yr==yc*(grid-1)/20+1):
                                 return 3
-                        elif (yr==yc*(grid+1)/10):
+                        elif (yr==yc*(grid+3)/20):
                                 return 1
                         else:     
                                 return randint(1,4)
-                elif grid%2==0:
-                        if (xr>xc/2 and yr>yc*(grid-2)/10 and yr<= yc*(grid)/10 )==False:
-                                if xr<=xc/2:
+                elif grid%4==2:
+                        if (xr>xc/4 and xr<=xc/2 and yr>yc*(grid-2)/20 and yr<= yc*(grid+2)/20 )==False:
+                                if xr>xc/2:
+                                        return choice([4,4,4,4,4,4,1,3,1,3])
+                                if xr<=xc/4:
                                         return choice([2,2,2,2,2,2,3,1,1,3])
-                                if yr<=yc*(grid-2)/10:
+                                if yr<=yc*(grid-2)/20:
                                         return choice([3,3,3,3,3,3,4,2,2,4])
-                                if yr>yc*(grid)/10:
+                                if yr>yc*(grid+2)/20:
                                         return choice([1,1,1,1,1,1,4,2,2,4])
-                        elif (xr==xc):
+                        elif (xr==xc/2):
+                                return 4
+                        elif (xr==1+xc/4):
+                                return 2
+                        elif (yr==yc*(grid-2)/20+1):
+                                return 3
+                        elif (yr==yc*(grid+2)/20):
+                                return 1
+                        else:     
+                                return randint(1,4)
+                elif grid%4==3:
+                        if (xr<=3*xc/4 and xr>xc/2 and yr>yc*(grid-3)/20 and yr<= yc*(grid+1)/20 )==False:
+                                if xr<=xc/2:
+                                        return choice([2,2,2,2,2,2,1,3,1,3])
+                                if xr>3*xc/4:
+                                        return choice([4,4,4,4,4,4,1,3,1,3])
+                                if yr<=yc*(grid-3)/20:
+                                        return choice([3,3,3,3,3,3,4,2,2,4])
+                                if yr>yc*(grid+1)/20:
+                                        return choice([1,1,1,1,1,1,4,2,2,4])
+                        elif (xr==3*xc/4):
                                 return 4
                         elif (xr==1+xc/2):
                                 return 2
-                        elif (yr==yc*(grid-2)/10+1):
+                        elif (yr==yc*(grid-3)/20+1):
                                 return 3
-                        elif (yr==yc*(grid)/10):
+                        elif (yr==yc*(grid+1)/20):
+                                return 1
+                        else:     
+                                return randint(1,4)
+                elif grid%4==0:
+                        if (xr>3*xc/4 and yr>yc*(grid-4)/20 and yr<= yc*(grid)/20 )==False:
+                                if xr<=3*xc/4:
+                                        return choice([2,2,2,2,2,2,3,1,1,3])
+                                if yr<=yc*(grid-4)/20:
+                                        return choice([3,3,3,3,3,3,4,2,2,4])
+                                if yr>yc*(grid)/20:
+                                        return choice([1,1,1,1,1,1,4,2,2,4])
+                        
+                        elif (xr==1+3*xc/4):
+                                return 2
+                        elif (yr==yc*(grid-4)/20+1):
+                                return 3
+                        elif (yr==yc*(grid)/20):
                                 return 1
                         else:     
                                 return randint(1,4)
@@ -359,9 +397,6 @@ def ActBase(base):
         yc=base.GetDimensionY()
         # constant rate of robot deployment
         if base.GetElixir() > 480:
-                for i in range(1,11):
-                        for j in range(1,3):
-                                base.create_robot('attack '+ str(i) + ' ' + str(j) + ' ' + str(xc) + ' ' + str(yc))
+                for i in range(1,21):
+                        base.create_robot('attack '+ str(i) + ' ' + str(xc) + ' ' + str(yc))
 
-
-        

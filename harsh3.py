@@ -241,7 +241,18 @@ def ActRobot(robot):
                 pos=int(initial.split()[2])
                 xc=int(initial.split()[3])
                 yc=int(initial.split()[4])
-
+                #send signal of survival
+                
+                options=[1,2,3,4]
+                if len(robot.GetYourSignal())>0:
+                        prevmove=int(robot.GetYourSignal().split()[2])
+                
+                try:
+                        move=choice(options.remove(prevmove))
+                except:
+                        move=choice(options)
+                
+                robot.setSignal('Alive {} {}'.format(str(grid), move))
                 #make 10 grids of 8x20 each
                 if grid%2==1:
                         if (xr<=xc/2 and yr>yc*(grid-1)/10 and yr<= yc*(grid+1)/10 )==False:
@@ -260,7 +271,7 @@ def ActRobot(robot):
                         elif (yr==yc*(grid+1)/10):
                                 return 1
                         else:     
-                                return randint(1,4)
+                                return move
                 elif grid%2==0:
                         if (xr>xc/2 and yr>yc*(grid-2)/10 and yr<= yc*(grid)/10 )==False:
                                 if xr<=xc/2:
@@ -277,8 +288,8 @@ def ActRobot(robot):
                                 return 3
                         elif (yr==yc*(grid)/10):
                                 return 1
-                        else:     
-                                return randint(1,4)
+                        else:  
+                                return move
                         
 
 
@@ -335,8 +346,24 @@ def ActBase(base):
         
         '''
         basedefence(base)
+        basecoord=base.GetPosition()
+        xb=basecoord[0]
+        yb=basecoord[1]
+        xc=base.GetDimensionX()
+        yc=base.GetDimensionY()
+
+        for i in range(1,10,2):
+            if yb>yc*(i-1)/10 and yb<=yc*(i+1)/10:
+                if xb>xc/2:
+                    basegrid=i+1
+                else:
+                    basegrid=i
+                break
+
+
         reserveElixir = 350
         signals = []
+        
         # check if robots have signalled anything
         try:
                 signals = base.GetListOfSignals()
@@ -345,23 +372,45 @@ def ActBase(base):
 
         # set signal if enemy location found optimize this
         for s in signals :
-                        if s.startswith("E:"):
-                                base.SetYourSignal(s)
-                                while(base.GetElixir()>reserveElixir):
-                                        base.create_robot('')
-
+            if s.startswith("E:"):
+                base.SetYourSignal(s)
+                while(base.GetElixir()>reserveElixir):
+                    base.create_robot('')
+        
         # make a enemies near function and check enemy base
         enemies_near = 0
         if enemies_near:
-                base.DeployVirus(200)
+            base.DeployVirus(200)
         
-        xc=base.GetDimensionX()
-        yc=base.GetDimensionY()
+        
         # constant rate of robot deployment
         if base.GetElixir() > 480:
-                for i in range(1,11):
-                        for j in range(1,3):
-                                base.create_robot('attack '+ str(i) + ' ' + str(j) + ' ' + str(xc) + ' ' + str(yc))
-
-
+            for i in range(1,11):
+                if i!=basegrid:
+                    for j in range(1,3):
+                        base.create_robot('attack '+ str(i) + ' ' + str(j) + ' ' + str(xc) + ' ' + str(yc))
+                if i==basegrid:
+                    base.create_robot('attack '+ str(i) + ' ' + str(1) + ' ' + str(xc) + ' ' + str(yc))
         
+        alive=[]
+        dead=[]
+        for s in signals:
+            if 'Alive' in s:
+                grid=int(s.split()[1])
+                alive.append(grid)
+        #print(alive)
+        if len(alive)>0:
+            for i in range(1,11):
+                if (i not in alive) and base.GetElixir()>300:
+                    base.create_robot('attack '+ str(i) + ' ' + str(1) + ' ' + str(xc) + ' ' + str(yc))
+        if len(alive)>0 and len(alive)<=12:
+            for i in range(1,11):
+                if i not in alive:
+                    dead.append(i)
+            if len(dead)>=4 and base.GetElixir()>100:
+                for j in dead[0:4]:
+                    base.create_robot('attack '+ str(j) + ' ' + str(randint(1,2)) + ' ' + str(xc) + ' ' + str(yc))
+
+
+
+

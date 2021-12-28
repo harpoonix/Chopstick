@@ -7,8 +7,8 @@ import time
 import warnings 
 from base import Base
 from collectible import Collectible
-import harsh
-import piyush
+import harsh3
+import nemesis
 #__resources library
 
 class Game():
@@ -59,14 +59,14 @@ class Game():
         while True:
             iter+=1
             self.screen.fill((60,60,60))
-            piyush.ActBase(self.__bluebase)
-            harsh.ActBase(self.__redbase)
+            nemesis.ActBase(self.__bluebase)
+            harsh3.ActBase(self.__redbase)
             moves = {}
             for robo in self.__redbots:
-                n = harsh.ActRobot(robo)
+                n = harsh3.ActRobot(robo)
                 moves[robo] = n
             for robo in self.__bluebots:
-                n = piyush.ActRobot(robo)
+                n = nemesis.ActRobot(robo)
                 moves[robo] = n
             for robo, n in moves.items():
                 if n == 1:
