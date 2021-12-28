@@ -248,7 +248,10 @@ def ActRobot(robot):
                         prevmove=int(robot.GetYourSignal().split()[2])
                 
                 try:
-                        move=choice(options.remove(prevmove))
+                        if prevmove>2:
+                                move=choice(options.remove(prevmove-2))
+                        elif prevmove<=2:
+                                move=choice(options.remove(prevmove+2))
                 except:
                         move=choice(options)
                 
@@ -374,8 +377,8 @@ def ActBase(base):
         for s in signals :
             if s.startswith("E:"):
                 base.SetYourSignal(s)
-                while(base.GetElixir()>reserveElixir):
-                    base.create_robot('')
+                #while(base.GetElixir()>reserveElixir):
+                    #base.create_robot('')
         
         # make a enemies near function and check enemy base
         enemies_near = 0
@@ -390,7 +393,7 @@ def ActBase(base):
                     for j in range(1,3):
                         base.create_robot('attack '+ str(i) + ' ' + str(j) + ' ' + str(xc) + ' ' + str(yc))
                 if i==basegrid:
-                    base.create_robot('attack '+ str(i) + ' ' + str(1) + ' ' + str(xc) + ' ' + str(yc))
+                        base.create_robot('attack '+ str(i) + ' ' + str(1) + ' ' + str(xc) + ' ' + str(yc))
         
         alive=[]
         dead=[]
@@ -410,7 +413,6 @@ def ActBase(base):
             if len(dead)>=4 and base.GetElixir()>100:
                 for j in dead[0:4]:
                     base.create_robot('attack '+ str(j) + ' ' + str(randint(1,2)) + ' ' + str(xc) + ' ' + str(yc))
-
 
 
 
