@@ -133,11 +133,13 @@ def ActRobot(robot):
                 yb=basecrd[1]
         
         if ('defc' in initial) and (robocrd==basecrd) :
-                re=int(initial.split()[1])
-                if re%4!=0:
-                        return (re%4)
-                elif re%4==0:
-                        return 4
+                if 'innerdefc' in initial:
+                        re=int(initial.split()[1])
+                        if re==5:
+                                re=1
+                else:
+                        re=int(initial.split()[1].split(':')[0])
+                return re
         elif 'innerdefc' in initial:
             if xr<xb and yr>=yb:
                 return 1
@@ -148,34 +150,46 @@ def ActRobot(robot):
             elif xr<=xb and yr<yb:
                 return 2
         elif 'defc' in initial:
-                if xr==xb and abs(yr-yb)==1 :
-                        if yr<yb:
+                        re=int(initial.split()[1].split(':')[0])
+                        pos=int(initial.split()[1].split(':')[1])
+                        if xr==xb and abs(yr-yb)==1 :
+                                if re==1 and pos==1:
+                                        return 4
+                                elif re==1 and pos==2:
+                                        return 2
+                                elif re==3 and pos==1:
+                                        return 2
+                                elif re==3 and pos==2:
+                                        return 4
+                        elif yr==yb and abs(xr-xb)==1 :
+                                if re==2 and pos==1:
+                                        return 1
+                                elif re==2 and pos==2:
+                                        return 3
+                                elif re==4 and pos==1:
+                                        return 3
+                                elif re==4 and pos==2:
+                                        return 1
+                        
+                        elif abs(xr-xb)==1 and abs(yr-yb)==1:
+                                if re==1:
+                                        return 1
+                                elif re==2:
+                                        return 2
+                                elif re==3:
+                                        return 3
+                                elif re==4:
+                                        return 4
+
+                        elif xr-xb==2 and yr-yb<=2 and yr-yb>=-1 :
                                 return 1
-                        else: 
+                        elif xr-xb==-2 and yb-yr<=2 and yb-yr>=-1 :
                                 return 3
-                elif yr==yb and abs(xr-xb)==1 :
-                        if xr<xb:
+                        elif yr-yb==-2 and xr-xb<=2 and xr-xb>=-1 :
                                 return 4
-                        else: 
+                        elif yr-yb==2 and xb-xr<=2 and xb-xr>=-1 :
                                 return 2
-                elif xr==xb:
-                        if yr<yb and ('friend' not in robot.investigate_left() ):
-                                return 4
-                        elif yr>yb and ('friend' not in robot.investigate_right() ):
-                                return 2
-                elif yr==yb:
-                        if xr<xb and ('friend' not in robot.investigate_down() ):
-                                return 3
-                        elif xr>xb and ('friend' not in robot.investigate_up() ):
-                                return 1
-                elif xr-xb==2 and yr-yb<=2 and yr-yb>=-1 :
-                        return 1
-                elif xr-xb==-2 and yb-yr<=2 and yb-yr>=-1 :
-                        return 3
-                elif yr-yb==-2 and xr-xb<=2 and xr-xb>=-1 :
-                        return 4
-                elif yr-yb==2 and xb-xr<=2 and xb-xr>=-1 :
-                        return 2
+                
                 
         
         pos=int(initial.split()[2])   
@@ -226,15 +240,15 @@ def ActRobot(robot):
                 virus_amt = 4000
                 while(robot.GetVirus() > virus_amt):
                         robot.DeployVirus(virus_amt)
-                if robot.GetVirus()>2000:
-                        robot.DeployVirus(2000)
+                if robot.GetVirus()>2800:
+                        robot.DeployVirus(2800)
                 else:
                         robot.DeployVirus(robot.GetVirus()*0.8)
                 return 0
         else:
                 if res[1]["release_virus"]:
                         if robot.GetVirus() > 1000:
-                                robot.DeployVirus(600)  
+                                robot.DeployVirus(920)  
 
         if 'attack' in initial:
                 grid=int(initial.split()[1])
@@ -244,18 +258,30 @@ def ActRobot(robot):
                 #send signal of survival
                 
                 options=[1,2,3,4]
-                if len(robot.GetYourSignal())>0:
+                if 'Alive' in robot.GetYourSignal():
                         prevmove=int(robot.GetYourSignal().split()[2])
-                
-                try:
-                        if prevmove>2:
-                                move=choice(options.remove(prevmove-2))
+                        #print(robot.GetYourSignal())
+                        #print(prevmove)
+                        if prevmove>=3:
+                                options.remove(prevmove-2)
+                                options.append(prevmove)
+                                
                         elif prevmove<=2:
-                                move=choice(options.remove(prevmove+2))
-                except:
-                        move=choice(options)
+                                options.remove(prevmove+2)
+                                options.append(prevmove) #dilemma here, do this or not?
+                              
+                else:
+                        print('fail')
+                move=choice(options)
+                #try:
+                        
+                        
+                #except:
+                        #move=choice(options)
+                        #print('fail')
+                        
                 
-                robot.setSignal('Alive {} {}'.format(str(grid), move))
+                robot.setSignal('Alive {} {}'.format(str(grid), str(move)))
                 #make 10 grids of 8x20 each
                 if grid%2==1:
                         if (xr<=xc/2 and yr>yc*(grid-1)/10 and yr<= yc*(grid+1)/10 )==False:
@@ -267,11 +293,11 @@ def ActRobot(robot):
                                         return choice([1,1,1,1,1,1,4,2,2,4])
                         elif (xr==xc/2):
                                 return 4
-                        elif (xr==1):
+                        elif robot.investigate_left()=='wall':
                                 return 2
-                        elif (yr==yc*(grid-1)/10+1):
+                        elif (yr==yc*(grid-1)/10+1) or robot.investigate_up()=='wall':
                                 return 3
-                        elif (yr==yc*(grid+1)/10):
+                        elif (yr==yc*(grid+1)/10) or robot.investigate_down()=='wall':
                                 return 1
                         else:     
                                 return move
@@ -283,13 +309,13 @@ def ActRobot(robot):
                                         return choice([3,3,3,3,3,3,4,2,2,4])
                                 if yr>yc*(grid)/10:
                                         return choice([1,1,1,1,1,1,4,2,2,4])
-                        elif (xr==xc):
+                        elif (xr==xc) or robot.investigate_right()=='wall':
                                 return 4
                         elif (xr==1+xc/2):
                                 return 2
-                        elif (yr==yc*(grid-2)/10+1):
+                        elif (yr==yc*(grid-2)/10+1) or robot.investigate_up()=='wall':
                                 return 3
-                        elif (yr==yc*(grid)/10):
+                        elif (yr==yc*(grid)/10) or robot.investigate_down()=='wall':
                                 return 1
                         else:  
                                 return move
@@ -332,13 +358,14 @@ def basedefence(base):
                         friendcount+=1
         #will keep 5 friends immediately around the base
         if friendcount<5:
-                if base.GetElixir()-50*(5-friendcount)>400:
+                if base.GetElixir()-50*(5-friendcount)>300:
                         for i in range(1,6-friendcount):
                                 base.create_robot('innerdefc '+ str(i) + ' ' + str(basecoord[0]) + ' ' + str(basecoord[1]))
         # 8 robots outer, 5 robots inner. 
         if base.GetElixir()>600:
-                for i in range(1,9):
-                        base.create_robot('defc ' + str(i) + ' ' + str(basecoord[0]) + ' ' + str(basecoord[1]) )
+                for i in range(1,5):
+                        for j in range(1,3):
+                                base.create_robot('defc ' + str(i)+':'+str(j) + ' ' + str(basecoord[0]) + ' ' + str(basecoord[1]) )
                 
 
         
